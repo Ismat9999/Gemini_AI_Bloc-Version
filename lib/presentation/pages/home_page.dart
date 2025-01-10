@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage> {
                     child: SizedBox(
                       width: 100,
                       height: 100,
-                      child: Image.asset("assests/images/gemini_icon.png"),
+                      child: Image.asset("assets/images/gemini_icon.png"),
                     ),
                   ),
                 ),
