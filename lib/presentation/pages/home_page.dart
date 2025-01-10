@@ -1,7 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geminiaibloc/presentation/blocs/home/home_bloc.dart';
 import 'package:geminiaibloc/presentation/blocs/home/home_state.dart';
+import 'package:geminiaibloc/presentation/blocs/home/picker_bloc.dart';
+import 'package:geminiaibloc/presentation/blocs/home/picker_event.dart';
+import 'package:geminiaibloc/presentation/blocs/home/picker_state.dart';
+import 'package:geminiaibloc/presentation/widgets/item_gemini_message.dart';
 
 import '../widgets/item_user_message.dart';
 
@@ -14,11 +20,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late HomeBloc homeBloc;
+  late PickerBloc pickerBloc;
 
   @override
   void initState() {
     super.initState();
     homeBloc = context.read<HomeBloc>();
+    pickerBloc= context.read<PickerBloc>();
   }
   @override
   Widget build(BuildContext context) {
@@ -45,6 +53,8 @@ class _HomePageState extends State<HomePage> {
                       var message= homeBloc.messages[index];
                       if(message.isMine!){
                         return itemOfUserMessage(message);
+                      }else{
+                        return itemOfGeminiMessage(message);
                       }
                     },
                   ): Center(
@@ -66,6 +76,50 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      BlocBuilder<PickerBloc, PickerState>(
+                        builder: (context, state){
+                          if (state is SelectedPhotoState){
+                            return Stack(
+                              children: [
+                                Container(
+                                  margin: EdgeInsets.only(top: 10),
+                                  height: 70,
+                                  width: 70,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: Colors.white),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Image.memory(base64Decode(pickerBloc.pickedImage64!),
+                                    fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  margin: EdgeInsets.only(top: 10),
+                                  height: 70,
+                                  width: 70,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: Colors.white),
+                                  ),
+                                  child: Center(
+                                    child: IconButton(
+                                      onPressed: (){
+                                        pickerBloc.add(ClearedPhotoEvent());
+                                      },
+                                      icon: Icon(Icons.clear,color: Colors.black,),
+
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+                          return SizedBox.shrink();
+                        },
+                      ),
                       Row(
                         children: [
                           Expanded(
@@ -77,7 +131,7 @@ class _HomePageState extends State<HomePage> {
                                 border: InputBorder.none,
                                 hintText: "Message",
                                 hintStyle: TextStyle(
-                                  color: Colors.grey
+                                    color: Colors.grey
                                 ),
                               ),
                             ),
@@ -88,7 +142,10 @@ class _HomePageState extends State<HomePage> {
                           ),
                           IconButton(
                             onPressed: (){
-                              homeBloc.askToGemini();
+                              homeBloc.askToGemini(pickerBloc.pickedImage64);
+                              if (pickerBloc.pickedImage64 != null){
+                                pickerBloc.add(ClearedPhotoEvent());
+                              }
                             },
                             icon: const Icon(Icons.send, color: Colors.grey,),
                           ),

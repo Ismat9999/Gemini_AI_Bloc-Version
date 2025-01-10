@@ -2,6 +2,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geminiaibloc/presentation/blocs/home/picker_bloc.dart';
 import 'package:geminiaibloc/presentation/blocs/starter_page/starter_event.dart';
 import 'package:geminiaibloc/presentation/blocs/starter_page/starter_state.dart';
 import 'package:video_player/video_player.dart';
@@ -36,6 +37,8 @@ class StarterBloc extends Bloc<StarterEvent,StarterState>{
         providers: [
           BlocProvider(
             create: (context)=>HomeBloc()),
+          BlocProvider(
+              create: (context)=>PickerBloc()),
         ],
         child: HomePage(),
       );
